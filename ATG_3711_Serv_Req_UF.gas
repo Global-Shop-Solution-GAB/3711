@@ -1,0 +1,215 @@
+Program.Sub.ScreenSU.Start
+gui.F_Serv_Req_UFs..create
+gui.F_Serv_Req_UFs..caption("Service Requests User Fields")
+gui.F_Serv_Req_UFs..size(6100,2700)
+gui.F_Serv_Req_UFs..position(0,0)
+gui.F_Serv_Req_UFs..event(unload,f_serv_req_ufs_unload)
+gui.F_Serv_Req_UFs..alwaysontop(False)
+gui.F_Serv_Req_UFs..fontname("Arial")
+gui.F_Serv_Req_UFs..fontsize(8)
+gui.F_Serv_Req_UFs..forecolor(0)
+gui.F_Serv_Req_UFs..fontstyle(,,,,)
+gui.F_Serv_Req_UFs..BackColor(-2147483633)
+gui.F_Serv_Req_UFs..controlbox(True)
+gui.F_Serv_Req_UFs..maxbutton(False)
+gui.F_Serv_Req_UFs..minbutton(True)
+gui.F_Serv_Req_UFs..mousepointer(0)
+gui.F_Serv_Req_UFs..moveable(True)
+gui.F_Serv_Req_UFs..sizeable(False)
+gui.F_Serv_Req_UFs..ShowInTaskBar(True)
+gui.F_Serv_Req_UFs..titlebar(True)
+gui.F_Serv_Req_UFs.frmUserFields.create(frame)
+gui.F_Serv_Req_UFs.frmUserFields.caption("")
+gui.F_Serv_Req_UFs.frmUserFields.size(5600,900)
+gui.F_Serv_Req_UFs.frmUserFields.position(200,700)
+gui.F_Serv_Req_UFs.frmUserFields.visible(True)
+gui.F_Serv_Req_UFs.frmUserFields.fontname("Arial")
+gui.F_Serv_Req_UFs.frmUserFields.fontsize(8)
+gui.F_Serv_Req_UFs.lbl1.create(label,"Customer No.",True,1935,255,1,200,200,True,0,Arial,8,-2147483633,0)
+gui.F_Serv_Req_UFs.txtCustNo.create(textbox,"",True,1200,300,0,200,400,False,0,Arial,8,-2147483643,1)
+gui.F_Serv_Req_UFs.lbl2.create(label,"Customer Name",True,1935,255,1,1500,200,True,0,Arial,8,-2147483633,0)
+gui.F_Serv_Req_UFs.txtCustName.create(textbox,"",True,3000,300,0,1500,400,False,0,Arial,8,-2147483643,1)
+gui.F_Serv_Req_UFs.lbl3.create(label,"Request No.",True,1935,255,1,4600,200,True,0,Arial,8,-2147483633,0)
+gui.F_Serv_Req_UFs.txtRequestNo.create(textbox,"",True,1200,300,0,4600,400,False,0,Arial,8,-2147483643,1)
+gui.F_Serv_Req_UFs.cmdSave.create(button)
+gui.F_Serv_Req_UFs.cmdSave.caption("Save")
+gui.F_Serv_Req_UFs.cmdSave.visible(True)
+gui.F_Serv_Req_UFs.cmdSave.size(855,375)
+gui.F_Serv_Req_UFs.cmdSave.zorder(0)
+gui.F_Serv_Req_UFs.cmdSave.position(200,1700)
+gui.F_Serv_Req_UFs.cmdSave.enabled(True)
+gui.F_Serv_Req_UFs.cmdSave.fontname("Arial")
+gui.F_Serv_Req_UFs.cmdSave.fontsize(8)
+gui.F_Serv_Req_UFs.cmdSave.event(click,cmdsave_click)
+gui.F_Serv_Req_UFs.drpReportable.create(dropdownlist)
+gui.F_Serv_Req_UFs.drpReportable.visible(True)
+gui.F_Serv_Req_UFs.drpReportable.size(1455,330)
+gui.F_Serv_Req_UFs.drpReportable.zorder(0)
+gui.F_Serv_Req_UFs.drpReportable.position(100,400)
+gui.F_Serv_Req_UFs.drpReportable.enabled(True)
+gui.F_Serv_Req_UFs.drpReportable.parent("frmuserfields")
+gui.F_Serv_Req_UFs.drpReportable.fontname("Arial")
+gui.F_Serv_Req_UFs.drpReportable.fontsize(8)
+gui.F_Serv_Req_UFs.lbl4.create(label,"Reportable? - Y/N",True,1935,255,1,100,200,True,0,Arial,8,-2147483633,0)
+gui.F_Serv_Req_UFs.lbl4.parent("frmuserfields")
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Variable.Global.sCustNo.Declare(String,"100001")
+Variable.Global.sReqNo.Declare(String,"0000001")
+Variable.Global.sCustName.Declare(String,"AK Steel")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Coded by: SMC
+'Project Start Date: 11/30/2010
+'
+'Hooks:
+'  CRM-COMP-POPULATE (000030603)
+'  CRM-TOOL-GAB1 (000030623)
+'  CRM-SERV_REQ-SAVE (000030612)
+'Notes:
+'  Customer would like a 1-character user field to be added to the Customer Service Request screen and table.
+'
+'  A new Pervasive table will be created and keyed the same as the Cust_Serv_Req table (Request number and Customer), plus a sequence field
+'  and a 50 character user field (ATG_SERV_REQ_UF).
+'  NOTE:  The Seq + 50 Char user field is in case more user fields will be added later.  This would make sure no table changes would need to be made.
+'
+'  A GAB program will be written that will be launched from a script button in CRM and/or AR0027 (CRM > File > Customer Service Requests).  It
+'  will bring up a separate screen which will allow the user to enter or modify the user field data.  The form will contain a checkbox, labeled
+'  "Reportable - Y/N?" and will store a "Y"or "N" in the table.
+
+'F.Intrinsic.Control.If(V.Caller.Hook,=,42903)
+'	V.Passed.CRM-Toolbar-1-15-t.Set("Reportable? - Y/N")
+'	F.Intrinsic.Control.End
+'F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,42923)
+	F.Intrinsic.Control.If(V.Passed.DATA-CRM-CompTypeAlpha,<>,"C")
+		F.Intrinsic.UI.Msgbox("Please select a customer.")
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.Endif
+	F.Intrinsic.Control.If(V.Passed.CRM-txtSRNo.Trim,=,"")
+		F.Intrinsic.UI.Msgbox("Please select an existing Service Request No.")
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndIf
+
+	V.Global.sCustName.Set(V.Passed.DATA-CRM-CompName)
+	V.Global.sCustNo.Set(V.Passed.DATA-CRM-CompID)
+	V.Global.sReqNo.Set(V.Passed.CRM-txtSRNo)
+
+	F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+	F.Intrinsic.Control.CallSub(Populate)
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,42912)
+	F.Intrinsic.Control.If(V.Passed.CRM-cboSRStatus.UCase,=,"CLOSED")
+		F.Intrinsic.Control.If(V.Passed.DATA-CRM-CompTypeAlpha,<>,"C")
+			F.Intrinsic.UI.Msgbox("Please select a customer.")
+			F.Intrinsic.Control.End
+		F.Intrinsic.Control.Endif
+		F.Intrinsic.Control.If(V.Passed.CRM-txtSRNo.Trim,=,"")
+			F.Intrinsic.UI.Msgbox("Please select an existing Service Request No.")
+			F.Intrinsic.Control.End
+		F.Intrinsic.Control.EndIf
+
+		V.Global.sCustName.Set(V.Passed.DATA-CRM-CompName)
+		V.Global.sCustNo.Set(V.Passed.DATA-CRM-CompID)
+		V.Global.sReqNo.Set(V.Passed.CRM-txtSRNo)
+
+		F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+		F.Intrinsic.Control.CallSub(Populate)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+program.sub.f_serv_req_ufs_unload.start
+F.Intrinsic.Control.If(V.Caller.Hook,=,30612)
+	F.Intrinsic.Control.If(V.Screen.F_Serv_Req_UFs!drpReportable.Text,=,"")
+		F.Intrinsic.UI.Msgbox("Please select Reportable as Yes or No")
+		F.Intrinsic.Control.ExitSub
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+program.sub.f_serv_req_ufs_unload.end
+
+program.sub.cmdsave_click.start
+V.Local.sQuery.Declare(String)
+
+F.Intrinsic.Control.If(V.Screen.F_Serv_Req_UFs!drpReportable.Text,=,"")
+	F.Intrinsic.UI.Msgbox("Please select Reportable as Yes or No")
+	F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.EndIf
+
+Gui.F_Serv_Req_UFs..Enabled(False)
+
+F.Intrinsic.String.Concat("SELECT * FROM ATG_3711_Serv_Req_UF WHERE REQUEST_NUMBER='",V.Global.sReqNo,"' AND CUSTOMER='",V.Global.sCustNo,"' AND USER_FIELD_SEQ=0",V.local.sQuery)
+F.ODBC.Connection!conx.OpenRecordsetRW("rstUF",V.Local.sQuery)
+F.Intrinsic.Control.If(V.ODBC.conx!rstUF.EOF,=,True)
+	F.ODBC.conx!rstUF.AddNew
+	F.ODBC.conx!rstUF.Set!REQUEST_NUMBER(V.Global.sReqNo)
+	F.ODBC.conx!rstUF.Set!CUSTOMER(V.Global.sCustNo)
+	F.ODBC.conx!rstUF.Set!USER_FIELD_SEQ(0)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.If(V.Screen.F_Serv_Req_UFs!drpReportable.Text,=,"Yes")
+	F.ODBC.conx!rstUF.Set!USER_FIELD_VALUE("Y")
+F.Intrinsic.Control.Else
+	F.ODBC.conx!rstUF.Set!USER_FIELD_VALUE("N")
+F.Intrinsic.Control.EndIf
+
+F.ODBC.conx!rstUF.Update
+F.ODBC.conx!rstUF.Close
+
+F.Intrinsic.Control.CallSub(F_serv_req_ufs_unload)
+
+program.sub.cmdsave_click.end
+
+Program.Sub.Populate.Start
+V.Local.sQuery.Declare(String)
+
+Gui.F_Serv_Req_UFs.drpReportable.AddItem("Yes")
+Gui.F_Serv_Req_UFs.drpReportable.AddItem("No")
+Gui.F_Serv_Req_UFs.txtCustName.Text(V.Global.sCustName)
+Gui.F_Serv_Req_UFs.txtCustNo.Text(V.Global.sCustNo)
+Gui.F_Serv_Req_UFs.txtRequestNo.Text(V.Global.sReqNo)
+Gui.F_Serv_Req_UFs.drpReportable.Text("")
+
+F.Intrinsic.String.Concat("SELECT * FROM ATG_3711_Serv_Req_UF WHERE REQUEST_NUMBER='",V.Global.sReqNo,"' AND CUSTOMER='",V.Global.sCustNo,"' AND USER_FIELD_SEQ=0",V.local.sQuery)
+F.ODBC.Connection!conx.OpenRecordsetRO("rstUF",V.Local.sQuery)
+F.Intrinsic.Control.If(V.ODBC.conx!rstUF.EOF,<>,True)
+	F.Intrinsic.Control.If(V.ODBC.conx!rstUF.FieldValTrim!USER_FIELD_VALUE,=,"Y")
+		Gui.F_Serv_Req_UFs.drpReportable.Text("Yes")
+	F.Intrinsic.Control.Else
+		Gui.F_Serv_Req_UFs.drpReportable.Text("No")
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+F.ODBC.conx!rstUF.Close
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,30612)
+	F.Intrinsic.Control.If(V.Screen.F_Serv_Req_UFs!drpReportable.Text,<>,"")
+		F.Intrinsic.Control.CallSub(F_serv_req_ufs_unload)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+Gui.F_Serv_Req_UFs..Show
+
+Program.Sub.Populate.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_3711_Serv_Req_UF$}$JCT$}$4/6/2016
+${$1$}$$}$$}$2$}$42912$}$CRM.NET-SERVREQ-SAVE$}$4/6/2016 3:43:17 PM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+${$1$}$$}$$}$1$}$42923$}$CRM.NET-TOOL-GAB1$}$4/6/2016 3:43:00 PM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+${$1$}$$}$$}$0$}$42903$}$CRM.NET-COMP-POPULATE$}$4/6/2016 3:42:40 PM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+Program.Sub.Comments.End
+
